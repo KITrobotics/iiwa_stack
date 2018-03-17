@@ -44,12 +44,14 @@
 // iiwa_msgs and ROS inteface includes
 #include <iiwa_msgs/JointPosition.h>
 #include <iiwa_msgs/JointTorque.h>
+#include <iiwa_msgs/JointPositionVelocity.h>
 #include "iiwa_ros/iiwa_ros.h"
 
 // ROS headers
 #include <control_toolbox/filters.h>
 #include <controller_manager/controller_manager.h>
 #include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/posvel_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <joint_limits_interface/joint_limits.h>
 #include <joint_limits_interface/joint_limits_interface.h>
@@ -133,7 +135,7 @@ public:
 
     /**< Joint state and commands */
     std::vector<double> joint_position, joint_position_prev, joint_velocity, joint_effort, joint_position_command,
-        joint_stiffness_command, joint_damping_command, joint_effort_command;
+        joint_velocity_command, joint_stiffness_command, joint_damping_command, joint_effort_command;
 
     /**
      * \brief Initialze vectors
@@ -145,6 +147,7 @@ public:
       joint_velocity.resize(IIWA_JOINTS);
       joint_effort.resize(IIWA_JOINTS);
       joint_position_command.resize(IIWA_JOINTS);
+      joint_velocity_command.resize(IIWA_JOINTS);
       joint_effort_command.resize(IIWA_JOINTS);
       joint_stiffness_command.resize(IIWA_JOINTS);
       joint_damping_command.resize(IIWA_JOINTS);
@@ -186,6 +189,7 @@ private:
   hardware_interface::JointStateInterface state_interface_;       /**< Interface for joint state */
   hardware_interface::EffortJointInterface effort_interface_;     /**< Interface for joint impedance control */
   hardware_interface::PositionJointInterface position_interface_; /**< Interface for joint position control */
+  hardware_interface::PosVelJointInterface posvel_interface_;   /**< Interface for joint position/velocity control */
 
   /** Interfaces for limits */
   joint_limits_interface::EffortJointSaturationInterface ej_sat_interface_;
@@ -205,6 +209,7 @@ private:
   iiwa_msgs::JointTorque joint_torque_;
 
   iiwa_msgs::JointPosition command_joint_position_;
+  iiwa_msgs::JointPositionVelocity command_joint_posvel_;
   iiwa_msgs::JointTorque command_joint_torque_;
 
   std::vector<double> last_joint_position_command_;
