@@ -104,6 +104,7 @@ public class ControlModeHandler {
 		}
 
 		switchMotion(motion, oldMotion);
+		motion.getRuntime().activateVelocityPlanning(true);
 
 		return motion;		
 	}
@@ -169,6 +170,8 @@ public class ControlModeHandler {
 		SmartServoLIN newMotion = createSmartServoLinMotion();
 		newMotion.setMode(controlMode);
 		switchMotion(newMotion, oldMotion);
+		newMotion.getRuntime().activateVelocityPlanning(true);
+
 		return newMotion; 
 	}
 
@@ -232,8 +235,9 @@ public class ControlModeHandler {
 	 */
 	public SmartServo createSmartServoMotion() {
 		SmartServo motion = new SmartServo(robot.getCurrentJointPosition());
-		motion.setMinimumTrajectoryExecutionTime(0.1); //TODO : parametrize
+		motion.setMinimumTrajectoryExecutionTime(0.02); //TODO : parametrize
 		motion.setTimeoutAfterGoalReach(3600); //TODO : parametrize
+		motion.setSpeedTimeoutAfterGoalReach(0.1);
 		motion.setJointVelocityRel(jointVelocity);
 		motion.setJointAccelerationRel(jointAcceleration);
 		motion.overrideJointAcceleration(overrideJointAcceleration);

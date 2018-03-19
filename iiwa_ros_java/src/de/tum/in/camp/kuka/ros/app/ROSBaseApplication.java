@@ -91,17 +91,6 @@ public abstract class ROSBaseApplication extends RoboticsAPIApplication {
 	protected abstract void beforeControlLoop();
 	protected abstract void controlLoop();
 
-	/*
-	 * SmartServo control makes the control loop very slow
-	 * These variables are used to run them every *decimation* times, 
-	 * In order to balance the load, they alternate at *decimationCounter* % *decimation* == 0 and
-	 * *decimationCounter* % *decimation* == *decimation* / 2
-	 */
-
-	// TODO : in config.txt or processData
-	protected int decimationCounter = 0; 
-	protected int controlDecimation = 8;
-
 	public void initialize() {
 		Logger.setSunriseLogger(getLogger());
 		
@@ -207,6 +196,7 @@ public abstract class ROSBaseApplication extends RoboticsAPIApplication {
 		toolFrame.moveAsync(motion);
 		// Hook the GoalReachedEventHandler
 		motion.getRuntime().setGoalReachedEventHandler(handler);
+		motion.getRuntime().activateVelocityPlanning(true);
 
 		if (configuration.getTimeProvider() instanceof org.ros.time.NtpTimeProvider) {
 			((NtpTimeProvider) configuration.getTimeProvider()).startPeriodicUpdates(100, TimeUnit.MILLISECONDS); // TODO: update time as param
@@ -221,13 +211,11 @@ public abstract class ROSBaseApplication extends RoboticsAPIApplication {
 		Logger.info("Starting the ROS control loop...");
 		try {
 			while(running) { 
-				decimationCounter++;
 
 				// This will publish the current robot state on the various ROS topics.
 				publisher.publishCurrentState(robot, motion, toolFrame);
 
-				if ((decimationCounter % controlDecimation) == 0)
-					controlLoop();  // Perform control loop specified by subclass
+				controlLoop();  // Perform control loop specified by subclass
 			} 
 		}
 		catch (Exception e) {
