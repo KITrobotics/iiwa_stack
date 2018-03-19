@@ -55,6 +55,7 @@ IIWA_HW::IIWA_HW(ros::NodeHandle nh) : last_joint_position_command_(7, 0)
   interface_type_.push_back("PositionJointInterface");
   interface_type_.push_back("EffortJointInterface");
   interface_type_.push_back("VelocityJointInterface");
+  interface_type_.push_back("PosVelJointInterface");
 }
 
 IIWA_HW::~IIWA_HW()
@@ -158,6 +159,12 @@ bool IIWA_HW::start()
 
     registerJointLimits(device_->joint_names[i], joint_handle, &urdf_model_, &device_->joint_lower_limits[i],
                         &device_->joint_upper_limits[i], &device_->joint_effort_limits[i]);
+    
+    // posvel command handle
+    hardware_interface::PosVelJointHandle posvel_joint_handle = hardware_interface::PosVelJointHandle(
+        state_interface_.getHandle(device_->joint_names[i]), &device_->joint_position_command[i], &device_->joint_velocity_command[i]);
+    
+    posvel_interface_.registerHandle(posvel_joint_handle);
   }
 
   ROS_INFO("Register state and effort interfaces");
@@ -167,6 +174,7 @@ bool IIWA_HW::start()
   this->registerInterface(&state_interface_);
   this->registerInterface(&effort_interface_);
   this->registerInterface(&position_interface_);
+  this->registerInterface(&posvel_interface_);
 
   return true;
 }
@@ -298,6 +306,22 @@ bool IIWA_HW::write(ros::Duration period)
     else if (interface_ == interface_type_.at(2))
     {
       // TODO
+    }
+    // Joint Position Velocity Control
+    else if (interface_ == interface_type_.at(3))
+    {
+      if (device_->joint_position_command ==
+          last_joint_position_command_)  // avoid sending the same joint command over and over
+        return 0;
+
+      last_joint_position_command_ = device_->joint_position_command;
+
+      // Building the message
+      vectorToIiwaMsgsJoint(device_->joint_position_command, command_joint_posvel_.position);
+      vectorToIiwaMsgsJoint(device_->joint_velocity_command, command_joint_posvel_.velocity);
+      command_joint_posvel_.header.stamp = ros::Time::now();
+
+      iiwa_ros_conn_.setJointPositionVelocity(command_joint_posvel_);
     }
   }
   else if (delta.toSec() >= 10)
