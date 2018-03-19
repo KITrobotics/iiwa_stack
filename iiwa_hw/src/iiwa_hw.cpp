@@ -310,10 +310,6 @@ bool IIWA_HW::write(ros::Duration period)
     // Joint Position Velocity Control
     else if (interface_ == interface_type_.at(3))
     {
-      if (device_->joint_position_command ==
-          last_joint_position_command_)  // avoid sending the same joint command over and over
-        return 0;
-
       last_joint_position_command_ = device_->joint_position_command;
 
       // Building the message
