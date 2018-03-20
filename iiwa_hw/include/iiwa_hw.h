@@ -64,7 +64,7 @@
 #include <sstream>
 #include <vector>
 
-constexpr int DEFAULT_CONTROL_FREQUENCY = 50;  // Hz
+constexpr int DEFAULT_CONTROL_FREQUENCY = 40;  // Hz
 constexpr int IIWA_JOINTS = 7;
 
 class IIWA_HW : public hardware_interface::RobotHW
