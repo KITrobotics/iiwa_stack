@@ -175,6 +175,11 @@ bool IIWA_HW::start()
   this->registerInterface(&effort_interface_);
   this->registerInterface(&position_interface_);
   this->registerInterface(&posvel_interface_);
+  
+  while(!ros::isShuttingDown() &&  !iiwa_ros_conn_.getRobotIsConnected())
+  {
+    ros::Duration(0.05).sleep();
+  }
 
   return true;
 }
@@ -236,6 +241,13 @@ bool IIWA_HW::read(ros::Duration period)
   ros::Duration delta = ros::Time::now() - timer_;
 
   static bool was_connected = false;
+  if (!was_connected)
+  {
+    while(!ros::isShuttingDown() && !iiwa_ros_conn_.getJointPosition(joint_position_))
+    {
+      ros::Duration(0.01).sleep();
+    }
+  }
 
   if (iiwa_ros_conn_.getRobotIsConnected())
   {
