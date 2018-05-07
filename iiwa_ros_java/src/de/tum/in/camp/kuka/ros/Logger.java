@@ -31,23 +31,23 @@ public class Logger {
 	}
 
 	public static void debug(String message) {
-		log(message, Level.DEBUG, Target.ROS);
+		log(message, Level.DEBUG, Target.SUNRISE);
 	}
 
 	public static void info(String message) {
-		log(message, Level.INFO, Target.BOTH);
+		log(message, Level.INFO, Target.SUNRISE);
 	}
 
 	public static void warn(String message) {
-		log(message, Level.WARN, Target.BOTH);
+		log(message, Level.WARN, Target.SUNRISE);
 	}
 
 	public static void error(String message) {
-		log(message, Level.ERROR, Target.BOTH);
+		log(message, Level.ERROR, Target.SUNRISE);
 	}
 
 	public static void fatal(String message) {
-		log(message, Level.FATAL, Target.BOTH);
+		log(message, Level.FATAL, Target.SUNRISE;
 	}
 
 	public static void log(String message, Level level, Target target) {
